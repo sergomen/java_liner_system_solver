@@ -1,7 +1,9 @@
-package sample.equation_solvers;
+package equation_solvers;
 
-import sample.utils.Matrix;
-import sample.utils.State;
+
+import main.Settings;
+import utils.Matrix;
+import utils.State;
 
 /**
  * Base solver is class realized generator to set
@@ -16,10 +18,9 @@ public class BaseSolver {
 	private double startNoise;
 	private double frequency;
 
-	// constant velocity noise interval: 10^-6 todo: check once
-	final double velocity_interval_noice = 0.0001;
-	final double gravity_const = 9.8;
-	final double earth_radius = 6371000;
+	private final double velocity_interval_noise = Settings.velocity_interval_noise.getValue();
+	private final double gravity_const = Settings.gravity_const.getValue();
+	private final double earth_radius = Settings.earth_radius.getValue();
 
 	// next() calls counter
 	private int step = 0;
@@ -43,7 +44,7 @@ public class BaseSolver {
 	public State next(double time_step) {
 		this.step++;
 
-		double velocity_noise = (Math.random() - .5) * velocity_interval_noice;
+		double velocity_noise = (Math.random() - .5) * velocity_interval_noise;
 
 		/* this matrix is transformation matrix between
 		* next and previous state */
@@ -54,7 +55,7 @@ public class BaseSolver {
 		};
 
 		double iteration_coefficient = time_step * frequency;
-		double filter_value_interval = 1.0 * Math.pow(10, -8);
+		double filter_value_interval = Settings.filter_value_interval.getValue();
 		double filter_value = Math.random() * filter_value_interval - filter_value_interval * .5;
 
 		/* filter add angle velocity noise on each step */
@@ -63,7 +64,7 @@ public class BaseSolver {
 			filter = new double[][]{
 					{0},
 					{0},
-					{(filter_value - state[2][0]) * iteration_coefficient} // fixme: this is shity filter
+					{(filter_value - state[2][0]) * iteration_coefficient}
 			};
 		}
 
