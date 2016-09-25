@@ -46,12 +46,12 @@ public class Main extends Application {
         launch(args);
     }
 
-    public static void log(String klass, String message) {
-        System.out.println(String.format("%1$s %2$s", klass, message));
+    public static void log(String die_klass, String message) {
+        System.out.println(String.format("%1$s %2$s", die_klass, message));
     }
 
-    public static void err(String klass, String message) {
-        System.err.println(String.format("%1$s %2$s", klass, message));
+    public static void err(String die_klass, String message) {
+        System.err.println(String.format("%1$s %2$s", die_klass, message));
     }
 
 }

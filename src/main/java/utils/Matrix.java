@@ -13,7 +13,7 @@ public abstract class Matrix {
      * @param other_array is matrix[][]
      * @return new matrix int[][] or {{0}} if summary arrays dimentions is not equals
      */
-    public static int[][] addition(int[][] array, int[][] other_array) {
+    public static int[][] matrix_addition(int[][] array, int[][] other_array) {
         int[][] result;
         if (array.length == other_array.length && array[0].length == other_array[0].length)
             result = new int[array.length][array[0].length];
@@ -36,7 +36,7 @@ public abstract class Matrix {
      * @param other_array is matrix[][]
      * @return new matrix double[][] or {{0}} if summary arrays dimentions is not equals
      */
-    public static double[][] addition(double[][] array, double[][] other_array) {
+    public static double[][] matrix_addition(double[][] array, double[][] other_array) {
         double[][] result;
         if (array.length == other_array.length && array[0].length == other_array[0].length)
             result = new double[array.length][array[0].length];
@@ -60,7 +60,7 @@ public abstract class Matrix {
      * @param other_array is second matrix
      * @return new double[][] matrix
      */
-    public static double[][] multiplication(double[][] array, double[][] other_array) {
+    public static double[][] matrix_multiplication(double[][] array, double[][] other_array) {
         int weigh = array.length;
         int height = other_array[0].length;
         int iterations;
@@ -92,7 +92,7 @@ public abstract class Matrix {
      * @param other_array is not first matrix, maybe second
      * @return new int[][] matrix
      */
-    public static int[][] multiplication(int[][] array, int[][] other_array) {
+    public static int[][] matrix_multiplication(int[][] array, int[][] other_array) {
         int weigh = array.length;
         int height = other_array[0].length;
         int iterations;
@@ -116,12 +116,37 @@ public abstract class Matrix {
         return final_array;
     }
 
+
+    /**
+     * provide multiplication twin-dimension array to multiplier
+     * @param array is multiplicand matrix
+     * @param multiplier is multiplicand
+     * @return new array[][] with equal array dimensions
+     */
+    public static double[][] matrix_multiplication(double[][] array, double multiplier) {
+        int weigh = array.length;
+        int height = array[0].length;
+
+        if (array[0].length == array.length && array.length == 0)
+            return new double[][]{{0}};
+
+        double[][] final_array = new double[weigh][height];
+
+        for (int lineNum = 0; lineNum < weigh; lineNum++) {
+            for (int colNum = 0; colNum < height; colNum++) {
+                final_array[lineNum][colNum] = array[lineNum][colNum] * multiplier;
+            }
+        }
+
+        return final_array;
+    }
+
     /**
      * print matrix double[][]
      *
      * @param array is a double[][] matrix
      */
-    public static void printMatrix(double[][] array) {
+    public static void matrix_print(double[][] array) {
         for (double[] line : array) {
             for (double value : line) {
                 System.out.printf("%s \t", value);
@@ -136,7 +161,7 @@ public abstract class Matrix {
      *
      * @param array is int[][] matrix
      */
-    public static void printMatrix(int[][] array) {
+    public static void matrix_print(int[][] array) {
         for (int[] line : array) {
             for (int value : line) {
                 System.out.printf("%s \t", value);
@@ -150,7 +175,7 @@ public abstract class Matrix {
      * @param matrix is transposed matrix
      * @return new matrix[][]
      */
-    public static double[][] transpose(double[][] matrix) {
+    public static double[][] matrix_transpose(double[][] matrix) {
 
         int lines = matrix.length;
         int columns = matrix[0].length;
@@ -171,7 +196,7 @@ public abstract class Matrix {
      * @param matrix is transposed matrix
      * @return new matrix[][]
      */
-    public static int[][] transpose(int[][] matrix) {
+    public static int[][] matrix_transpose(int[][] matrix) {
 
         int lines = matrix.length;
         int columns = matrix[0].length;

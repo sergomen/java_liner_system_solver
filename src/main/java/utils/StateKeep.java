@@ -1,5 +1,6 @@
 package utils;
 
+import DAO.RowState;
 import main.Main;
 
 import java.io.*;
@@ -11,62 +12,62 @@ import java.util.ArrayList;
  */
 public final class StateKeep {
 
-    private static ArrayList<State> states = null;
+    private static ArrayList<RowState> rowStates = null;
 
     /**
-     * @return ArrayList with all serialized states
+     * @return ArrayList with all serialized rowStates
      */
-    public static ArrayList<State> getStates() {
-        return states;
+    public static ArrayList<RowState> getRowStates() {
+        return rowStates;
     }
 
     /**
-     * Make states if not exist and append
+     * Make rowStates if not exist and append
      *
-     * @param next to states
+     * @param next to rowStates
      */
-    public static void addState(State next) {
-        if (states == null) {
-            states = new ArrayList<>();
+    public static void addState(RowState next) {
+        if (rowStates == null) {
+            rowStates = new ArrayList<>();
         }
-        states.add(next);
+        rowStates.add(next);
     }
 
     /**
-     * Serialize states to file
+     * Serialize rowStates to file
      */
     public static void serialize() {
         Main.log(StateKeep.class.getName(),
-                "serialize to:" + StateKeep.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "states");
+                "serialize to:" + StateKeep.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "rowStates");
         try {
-            FileOutputStream fout = new FileOutputStream(StateKeep.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "states");
+            FileOutputStream fout = new FileOutputStream(StateKeep.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "rowStates");
             ObjectOutputStream oos = new ObjectOutputStream(fout);
-            oos.writeObject(states);
+            oos.writeObject(rowStates);
         } catch (IOException e) {
-            Main.err(StateKeep.class.getName(), "cannot serialize states");
+            Main.err(StateKeep.class.getName(), "cannot serialize rowStates");
             Main.err(StateKeep.class.getName(), e.getMessage());
         }
     }
 
     /**
-     * Try to load states from file and
+     * Try to load rowStates from file and
      *
      * @return operation status as true|false with accordance
      * operation result
      */
     public static boolean deserialize() {
         Main.log(StateKeep.class.getName(),
-                "deserialize from:" + StateKeep.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "states");
+                "deserialize from:" + StateKeep.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "rowStates");
         try {
-            FileInputStream streamIn = new FileInputStream(StateKeep.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "states");
+            FileInputStream streamIn = new FileInputStream(StateKeep.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "rowStates");
             ObjectInputStream objectinputstream = new ObjectInputStream(streamIn);
-            states = (ArrayList<State>) objectinputstream.readObject();
+            rowStates = (ArrayList<RowState>) objectinputstream.readObject();
         } catch (ClassNotFoundException | IOException e) {
-            Main.err(StateKeep.class.getName(), "cannot deserialize states");
+            Main.err(StateKeep.class.getName(), "cannot deserialize rowStates");
             Main.err(StateKeep.class.getName(), e.getMessage());
         }
 
-        if (states != null)
+        if (rowStates != null)
             return true;
         return false;
     }
@@ -76,13 +77,13 @@ public final class StateKeep {
      */
     public static void drop() {
         File serialized = new File(
-                StateKeep.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "states");
+                StateKeep.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "rowStates");
         Main.log(StateKeep.class.getName(), "remove state:" + serialized.getPath());
 
-        if (states != null) {
-            Main.log(StateKeep.class.getName(), "remove states array");
-            states.clear();
-            states = null;
+        if (rowStates != null) {
+            Main.log(StateKeep.class.getName(), "remove rowStates array");
+            rowStates.clear();
+            rowStates = null;
         }
 
         if (serialized.delete()) {

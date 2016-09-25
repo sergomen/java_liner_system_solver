@@ -48,8 +48,8 @@
                                         prefHeight="30.0" prefWidth="150.0" text="Solve original plots"
                                         AnchorPane.leftAnchor="45.0" AnchorPane.topAnchor="30.0"/>
                                 <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-                                        minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#resolve"
-                                        prefHeight="30.0" prefWidth="150.0" text="Solve other plots"
+                                        minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#filtrate"
+                                        prefHeight="30.0" prefWidth="150.0" text="Filtrate"
                                         AnchorPane.leftAnchor="45.0" AnchorPane.topAnchor="70.0"/>
                                 <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
                                         minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#clear"
