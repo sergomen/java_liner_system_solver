@@ -3,8 +3,10 @@ package controllers;
 
 import DAO.RowState;
 import DAO.State;
+import Settings.Parameters;
 import equation_solvers.BaseSolver;
 import equation_solvers.FilterSolver;
+import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.chart.LineChart;
@@ -38,11 +40,8 @@ public class PlotsController {
     private XYChart.Series<Number, Number> filtered_angle;
     private XYChart.Series<Number, Number> filtered_noise;
 
-    private BaseSolver baseSolver = null;
-    private FilterSolver filterSolver = null;
-
-    private final int solveTime = 500; // TODO:set with GUT
-    private final int timeDelta = 1; // TODO:set with GUI
+    private final int solveTime = (int) Parameters.solve_time.getValue(); // TODO:set with GUT
+    private final int timeDelta = (int) Parameters.time_delta.getValue();
     private final double frequency = 1.0 / solveTime;
 
     @FXML
@@ -122,8 +121,8 @@ public class PlotsController {
             graphs.getChildren().add(noise_plot);
         }
 
-        // is it first start
-        baseSolver = new BaseSolver(0, 0, 0, frequency);
+        // Make generator for iteration solve
+        BaseSolver baseSolver = new BaseSolver(0, 0, 0, frequency);
 
         // If StateKeep is empty try to deserialize or fill and serialize it.
         if (StateKeep.getRowStates() == null) {
@@ -145,13 +144,11 @@ public class PlotsController {
 
 
     public void filtrate() {
+        Main.log(PlotsController.class.getName(), "filtrate");
+
         filtered_velocity.getData().clear();
         filtered_angle.getData().clear();
         filtered_noise.getData().clear();
-
-        Main.log(PlotsController.class.getName(), "filtrate");
-
-        filterSolver = new FilterSolver();
 
         if (StateKeep.getRowStates() == null) {
             Main.log(PlotsController.class.getName(), "there is no states to filtrate");
@@ -163,7 +160,8 @@ public class PlotsController {
             return;
         }
 
-        filterSolver = new FilterSolver();
+        // Make generator for iteration filtrate
+        FilterSolver filterSolver = new FilterSolver();
 
         // Load states from StateKeep to plots
         for (RowState rowState : StateKeep.getRowStates()) {

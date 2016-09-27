@@ -34,10 +34,10 @@ public class FilterSolver {
     };
 
     // noise
-    private double Q = Math.pow(10, -7);
+    private double Q = Math.pow(10, -16);
 
     // velocity noise
-    private double R = 1.0;
+    private double R = 10.0;
 
     // Kalman's filter iteration
     public State next(RowState rowState) {
@@ -102,14 +102,18 @@ public class FilterSolver {
         // END:solve Kalman's gain coefficient
 
         // solve strange coefficient Z as H * state + R FIXME: ask about Z
+//        double Z = rowState.velocity;
         double Z = Matrix.matrix_multiplication(
                 StandardMatrix.H.getMatrix(),
-                assessment_state
-        )[0][0] +
+                new double[][]{
+                        {rowState.velocity},
+                        {rowState.angle},
+                        {rowState.noise}
+                }
                 // noised velocity
-                rowState.velocity + rowState.velocity_noise;
+        )[0][0] + rowState.velocity_noise;
 
-        // START:find new state as state + P * (Z - H * assessment)
+        // START:find new state as state + K * (Z - H * assessment)
         // Z - H * assessment
         double[][] second_addition =
                 Matrix.matrix_multiplication(
@@ -121,10 +125,24 @@ public class FilterSolver {
                 );
 
         previous_step_state = Matrix.matrix_addition(
-                previous_step_state,
+                assessment_state,
                 second_addition
         );
         // END:find new state as state + P * (Z - H * assessment)
+
+//        System.out.print(rowState.velocity - previous_step_state[0][0] + "\t");
+//        System.out.print(rowState.angle - previous_step_state[1][0] + "\t");
+//        System.out.println(rowState.noise - previous_step_state[2][0]);
+
+        double coefficient = 1.0 - Matrix.matrix_multiplication(
+                K,
+                StandardMatrix.H.getMatrix()
+        )[0][0];
+
+        covariation_error = Matrix.matrix_multiplication(
+                covariation_error,
+                coefficient
+        );
 
         return new State(previous_step_state);
     }
