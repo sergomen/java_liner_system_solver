@@ -1,7 +1,7 @@
 package Settings;
 
 /**
- * Created by georg on 24.09.16.
+ * Created by Georg Mayur on 24.09.16.
  * Contain standard matrix like G and H
  */
 public enum StandardMatrix {

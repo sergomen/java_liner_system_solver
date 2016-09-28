@@ -6,7 +6,7 @@ import Settings.StandardMatrix;
 import utils.Matrix;
 
 /**
- * Created by georg on 24.09.16.
+ * Created by Georg Mayur on 24.09.16.
  * Try to iterative filtrate input signals via Kalman's noise_addition
  */
 public class FilterSolver {
@@ -130,15 +130,13 @@ public class FilterSolver {
         );
         // END:find new state as state + P * (Z - H * assessment)
 
-//        System.out.print(rowState.velocity - previous_step_state[0][0] + "\t");
-//        System.out.print(rowState.angle - previous_step_state[1][0] + "\t");
-//        System.out.println(rowState.noise - previous_step_state[2][0]);
-
+        // solve covariation matrix's correct coefficient
         double coefficient = 1.0 - Matrix.matrix_multiplication(
                 K,
                 StandardMatrix.H.getMatrix()
         )[0][0];
 
+        // correction covariation matrix
         covariation_error = Matrix.matrix_multiplication(
                 covariation_error,
                 coefficient

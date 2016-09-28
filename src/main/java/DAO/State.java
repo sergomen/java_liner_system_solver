@@ -3,7 +3,7 @@ package DAO;
 import java.io.Serializable;
 
 /**
- * Created by georg on 24.09.16.
+ * Created by Georg Mayur on 24.09.16.
  * Filtered system state
  */
 public class State implements Serializable{
