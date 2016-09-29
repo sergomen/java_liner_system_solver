@@ -6,7 +6,6 @@ import DAO.State;
 import Settings.Parameters;
 import equation_solvers.BaseSolver;
 import equation_solvers.FilterSolver;
-import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.chart.LineChart;
@@ -160,8 +159,47 @@ public class PlotsController {
             return;
         }
 
+        // permanently define R
+        final double R = 1.0;
+
+        // variate params for find optimal Q value
+        double Q_optimal = 0.0;
+
+        int minimal_degree = 10;
+        int degree_step = 1;
+
+        double minimal_error = 0.0;
+
         // Make generator for iteration filtrate
-        FilterSolver filterSolver = new FilterSolver();
+        for (int i = 0; i < 10; i++) {
+            double average_arror = 0;
+            int summary_numbers = 0;
+
+            double Q = Math.pow(10, -1 * (minimal_degree + i * degree_step));
+            FilterSolver filterSolver = new FilterSolver(R, Q);
+
+            for (RowState rowState : StateKeep.getRowStates()) {
+                State state = filterSolver.next(rowState);
+
+                summary_numbers++;
+                average_arror += (rowState.noise - state.noise)*(rowState.noise - state.noise);
+            }
+
+            average_arror = Math.sqrt(average_arror);
+            average_arror /= summary_numbers;
+
+            if (average_arror < minimal_error || minimal_error == 0.0) {
+                minimal_error = average_arror;
+                Q_optimal = Q;
+
+                Main.err(PlotsController.class.getName(), "minimal result error:"+average_arror+"\tQ:"+Q);
+            } else {
+                Main.err(PlotsController.class.getName(), "not minimal result error:"+average_arror+"\tQ:"+Q);
+            }
+        }
+
+        Main.err(PlotsController.class.getName(), "minimal error:"+minimal_error+"\toptimal Q:"+Q_optimal);
+        FilterSolver filterSolver = new FilterSolver(R, Q_optimal);
 
         // Load states from StateKeep to plots
         for (RowState rowState : StateKeep.getRowStates()) {

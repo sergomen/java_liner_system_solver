@@ -34,10 +34,16 @@ public class FilterSolver {
     };
 
     // noise
-    private double Q = Math.pow(10, -16);
+    private double Q;
 
     // velocity noise
-    private double R = 10.0;
+    private double R;
+
+    // set R and Q
+    public FilterSolver(double R, double Q) {
+        this.R = R;
+        this.Q = Q;
+    }
 
     // Kalman's filter iteration
     public State next(RowState rowState) {
