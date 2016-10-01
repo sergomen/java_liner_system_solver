@@ -49,11 +49,11 @@
                                         AnchorPane.leftAnchor="45.0" AnchorPane.topAnchor="30.0"/>
                                 <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
                                         minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#filtrate"
-                                        prefHeight="30.0" prefWidth="150.0" text="Run Kalman's filter"
+                                        prefHeight="30.0" prefWidth="150.0" text="Run direct filter"
                                         AnchorPane.leftAnchor="45.0" AnchorPane.topAnchor="70.0"/>
                                 <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
                                         minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#filtrate_reverse"
-                                        prefHeight="30.0" prefWidth="150.0" text="run reverse filter"
+                                        prefHeight="30.0" prefWidth="150.0" text="Run reverse filter"
                                         AnchorPane.leftAnchor="45.0" AnchorPane.topAnchor="110.0"/>
                                 <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
                                         minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#clear"
