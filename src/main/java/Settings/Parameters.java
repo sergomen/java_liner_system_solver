@@ -12,7 +12,9 @@ public enum Parameters {
     earth_radius(6371000),
 
     velocity_interval_noise(1),
-    filter_value_interval(1.0 * Math.pow(10, -4));
+    noise_interval_noise(1.0 * Math.pow(10, -4)),
+
+    optimum_find_steps(10);
 
     private double value;
 

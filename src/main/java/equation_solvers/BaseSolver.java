@@ -55,7 +55,7 @@ public class BaseSolver {
         };
 
         double iteration_coefficient = time_step * frequency;
-        double filter_value_interval = Settings.Parameters.filter_value_interval.getValue();
+        double filter_value_interval = Settings.Parameters.noise_interval_noise.getValue();
         double filter_value = Math.random() * filter_value_interval - filter_value_interval * .5;
 
 		/* filter add angle velocity noise on each step */
