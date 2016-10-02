@@ -4,7 +4,8 @@ package utils;
  * Class for math operation with matrix
  * Created by Georg Mayur on 10.09.16.
  */
-public abstract class Matrix {
+public strictfp abstract class Matrix {
+	// strictfp: use when solve time more than 10^4
 
 	/**
 	 * return result matrix as sum array and other array

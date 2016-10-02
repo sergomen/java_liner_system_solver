@@ -430,6 +430,12 @@ public class PlotsController {
 		filtered_angle.getData().clear();
 		filtered_noise.getData().clear();
 
+		reverse_filtered_velocity.getData().clear();
+		reverse_filtered_angle.getData().clear();
+		reverse_filtered_noise.getData().clear();
+
+		unshifted_filtered_noise.getData().clear();
+
 		velocity.getData().clear();
 		noised_velocity.getData().clear();
 		angle.getData().clear();
