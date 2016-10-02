@@ -400,7 +400,14 @@ public class PlotsController {
 		Main.log(PlotsController.class.getName(),
 				"find shift value:" + (direct_plot_interval_start - reverse_plot_interval_start));
 
-		// TODO: add briefing
+
+		/* Reverse and direct noise filters has shifts from original plot;
+		* The main idea is find shift between reverse and direct filter plots,
+		* then find shift between each filter plot and original plot as half of shift
+		* between filter plots, then count average in interval [start+half_shift, end-half_shift]
+		* and draw on this interval reversed original plot. Reversed plot not fully equal to
+		* original plot, but very near.
+		*/
 		unshifted_filtered_noise.getData().clear();
 
 		int shift = (int) Parameters.shift_between_direct_and_reverse_filtrate_plots.getValue();
