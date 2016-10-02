@@ -57,8 +57,8 @@ public class PlotsController {
 		// set labels
 		this.timeAxis.setLabel("time, s");
 		this.velocityAxis.setLabel("velocity, m/s");
-		this.angleAxis.setLabel("angle, rad/s**2");
-		this.noiseAxis.setLabel("noise");
+		this.angleAxis.setLabel("angle, rad");
+		this.noiseAxis.setLabel("drift");
 
 		// make empty charts to append it to plots
 		this.velocity = new XYChart.Series<>();
@@ -90,9 +90,9 @@ public class PlotsController {
 
 		// velocity noised append first for first plotting on grid
 		this.velocity_plot.getData().add(noised_velocity);
-		this.velocity_plot.getData().add(velocity);
 		this.velocity_plot.getData().add(filtered_velocity);
 		this.velocity_plot.getData().add(reverse_filtered_velocity);
+		this.velocity_plot.getData().add(velocity);
 
 		this.angle_plot.getData().add(angle);
 		this.angle_plot.getData().add(filtered_angle);
