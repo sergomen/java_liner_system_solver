@@ -44,6 +44,8 @@ public class PlotsController {
 	private XYChart.Series<Number, Number> reverse_filtered_angle;
 	private XYChart.Series<Number, Number> reverse_filtered_noise;
 
+	private XYChart.Series<Number, Number> unshifted_filtered_noise;
+
 	private final int solveTime = (int) Parameters.solve_time.getValue(); // TODO:set with GUT
 	private final int timeDelta = (int) Parameters.time_delta.getValue();
 	private final double frequency = 1.0 / solveTime;
@@ -84,6 +86,9 @@ public class PlotsController {
 		this.reverse_filtered_noise = new XYChart.Series<>();
 		this.reverse_filtered_noise.setName("filtrate noise");
 
+		this.unshifted_filtered_noise = new XYChart.Series<>();
+		this.unshifted_filtered_noise.setName("unshifted noise");
+
 		this.velocity_plot = new LineChart<>(timeAxis, velocityAxis);
 		this.angle_plot = new LineChart<>(timeAxis, angleAxis);
 		this.noise_plot = new LineChart<>(timeAxis, noiseAxis);
@@ -101,6 +106,7 @@ public class PlotsController {
 		this.noise_plot.getData().add(noise);
 		this.noise_plot.getData().add(filtered_noise);
 		this.noise_plot.getData().add(reverse_filtered_noise);
+		this.noise_plot.getData().add(unshifted_filtered_noise);
 
 		this.velocity_plot.setOnMouseMoved((MouseEvent event) -> mouseEvent(event, velocityAxis));
 		this.angle_plot.setOnMouseMoved((MouseEvent event) -> mouseEvent(event, angleAxis));
@@ -229,6 +235,11 @@ public class PlotsController {
 			reverse_filtered_angle.getData().add(new XYChart.Data(rowState.time, state.angle));
 			reverse_filtered_noise.getData().add(new XYChart.Data(rowState.time, state.noise));
 		}
+
+		/* Q_reverse_optimal need to find filtrate & reverse filtrate
+		* plots shift from original
+		* */
+		Parameters.Q_reverse_optimal.setValue(Q_optimal);
 	}
 
 	public void filtrate() {
@@ -249,7 +260,7 @@ public class PlotsController {
 		}
 
 		// permanently define R
-		final double R = Parameters.velocity_interval_noise.getValue();
+		final double R = Parameters.velocity_interval_noise.getValue(); // TODO: variate instead set true
 
 		// variate params for find optimal Q value
 		double Q_optimal = 0.0;
@@ -298,8 +309,110 @@ public class PlotsController {
 			filtered_angle.getData().add(new XYChart.Data(rowState.time, state.angle));
 			filtered_noise.getData().add(new XYChart.Data(rowState.time, state.noise));
 		}
+
+		/* Q_reverse_optimal need to find filtrate & reverse filtrate
+		* plots shift from original
+		* */
+		Parameters.Q_direct_optimal.setValue(Q_optimal);
 	}
 
+	/**
+	 * the goal: find time shift between direct and
+	 * reverse filtrate plot, the half of that shift is
+	 * shift between each filtrate plot and
+	 * original noise plot
+	 */
+	public void find_shift() {
+
+		if (Parameters.Q_direct_optimal.getValue() == 0 || Parameters.Q_reverse_optimal.getValue() == 0) {
+			Main.log(PlotsController.class.getName(), "Filtrate in both directions before");
+			return;
+		}
+
+		double[] direct_noise = new double[StateKeep.getRowStates().size()];
+		double[] reverse_noise = new double[StateKeep.getRowStates().size()];
+
+		ReverseKalmansFilter reverseKalmansFilter =
+				new ReverseKalmansFilter(Parameters.velocity_interval_noise.getValue(), Parameters.Q_reverse_optimal.getValue());
+		KalmansFilter kalmansFilter =
+				new KalmansFilter(Parameters.velocity_interval_noise.getValue(), Parameters.Q_direct_optimal.getValue());
+
+		// fill direct and reverse noise arrays
+		for (int j = (StateKeep.getRowStates().size() - 1); j > 0; j--) {
+			RowState rowState = StateKeep.getRowStates().get(j);
+			State state = reverseKalmansFilter.next(rowState);
+			reverse_noise[j] = state.noise;
+		}
+		for (int i = 0; i < StateKeep.getRowStates().size(); i++) {
+			RowState rowState = StateKeep.getRowStates().get(i);
+			State state = kalmansFilter.next(rowState);
+			direct_noise[i] = state.noise;
+		}
+
+		/*
+		* reverse_filtrate_interval_sum is sum of noise value in
+		* interval of second quarter of all solved period;
+		*
+		* direct_filtrate_interval_sum is sum of noise value in
+		* interval with unknown shift from original and reverse filtrates;
+		*
+		* the goal: find an interval on direct filtrated plot where
+		* the difference between reverse_filtrate_interval_sum and
+		* direct_filtrate_interval_sum is minimal, the
+		* interval between start direct_filtrate_interval_sum and start
+		* reverse_filtrate_interval_sum arrays is double time-shift
+		* filtrate plots from original
+		*/
+		double reverse_filtrate_interval_sum;
+		double direct_filtrate_interval_sum;
+
+		int reverse_plot_interval_start = (int) (Parameters.solve_time.getValue() / 4);
+		int direct_plot_interval_start = 0;
+		int interval_delta = (int) (Parameters.solve_time.getValue() / 3);
+
+		Double minimal_shift = null;
+
+		reverse_filtrate_interval_sum = 0;
+		for (int i = reverse_plot_interval_start; i < reverse_plot_interval_start + interval_delta; i++) {
+			reverse_filtrate_interval_sum += reverse_noise[i];
+		}
+
+		for (int i = reverse_plot_interval_start; i < reverse_plot_interval_start + interval_delta; i++) {
+			direct_filtrate_interval_sum = 0.0;
+			for (int j = i; j < i + interval_delta; j++) {
+				direct_filtrate_interval_sum += direct_noise[j];
+			}
+
+			double difference = (direct_filtrate_interval_sum - reverse_filtrate_interval_sum > 0) ?
+					direct_filtrate_interval_sum - reverse_filtrate_interval_sum :
+					(direct_filtrate_interval_sum - reverse_filtrate_interval_sum) * -1.0;
+
+			if (minimal_shift == null || minimal_shift > difference) {
+				minimal_shift = difference;
+				direct_plot_interval_start = i;
+			}
+		}
+
+		Parameters.shift_between_direct_and_reverse_filtrate_plots.setValue(
+				direct_plot_interval_start - reverse_plot_interval_start
+		);
+
+		Main.log(PlotsController.class.getName(),
+				"find shift value:" + (direct_plot_interval_start - reverse_plot_interval_start));
+
+		// TODO: add briefing
+		unshifted_filtered_noise.getData().clear();
+
+		int shift = (int) Parameters.shift_between_direct_and_reverse_filtrate_plots.getValue();
+		int half_shift = shift / 2;
+
+		for (int time = half_shift; time < StateKeep.getRowStates().size() - half_shift; time++) {
+			double average_noise = reverse_noise[time-half_shift] + direct_noise[time+half_shift];
+			average_noise /= 2;
+			unshifted_filtered_noise.getData().add(new XYChart.Data(time, average_noise));
+		}
+
+	}
 
 	/**
 	 * Clear next plots: velocity, noiced velocity, angle, noise
