@@ -9,12 +9,12 @@ import java.io.Serializable;
  * velocity error.
  */
 public class RowState extends State implements Serializable {
-    public long time;
-    public double velocity_noise;
+	public long time;
+	public double velocity_noise;
 
-    public RowState(double[][] state, long time, double velocity_noise) {
-        super(state);
-        this.time = time;
-        this.velocity_noise = velocity_noise;
-    }
+	public RowState(double[][] state, long time, double velocity_noise) {
+		super(state);
+		this.time = time;
+		this.velocity_noise = velocity_noise;
+	}
 }

@@ -11,47 +11,47 @@ import java.io.IOException;
 
 public class Main extends Application {
 
-    private Stage mainStage;
-    private GridPane rootLayout;
+	private Stage mainStage;
+	private GridPane rootLayout;
 
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-        mainStage = primaryStage;
-        loadMainStage();
-        mainStage.show();
-    }
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+		mainStage = primaryStage;
+		loadMainStage();
+		mainStage.show();
+	}
 
-    private void loadMainStage() throws IOException {
-        FXMLLoader loader = new FXMLLoader();
+	private void loadMainStage() throws IOException {
+		FXMLLoader loader = new FXMLLoader();
 
-        try {
-            loader.setLocation(getClass().getResource("../views/plots.fxml"));
-            rootLayout = loader.load();
-        } catch (Exception e) {
-            rootLayout = loader.load(getClass().getResourceAsStream("/views/plots.fxml"));
-        }
+		try {
+			loader.setLocation(getClass().getResource("../views/plots.fxml"));
+			rootLayout = loader.load();
+		} catch (Exception e) {
+			rootLayout = loader.load(getClass().getResourceAsStream("/views/plots.fxml"));
+		}
 
-        Scene scene = new Scene(rootLayout);
+		Scene scene = new Scene(rootLayout);
 
-        mainStage.setTitle("Equation solver");
-        mainStage.setScene(scene);
-        mainStage.setResizable(false);
-        mainStage.show();
+		mainStage.setTitle("Equation solver");
+		mainStage.setScene(scene);
+		mainStage.setResizable(false);
+		mainStage.show();
 
-        PlotsController firstController = loader.getController();
-        firstController.initialize(mainStage);
-    }
+		PlotsController firstController = loader.getController();
+		firstController.initialize(mainStage);
+	}
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+	public static void main(String[] args) {
+		launch(args);
+	}
 
-    public static void log(String die_klass, String message) {
-        System.out.println(String.format("%1$s %2$s", die_klass, message));
-    }
+	public static void log(String die_klass, String message) {
+		System.out.println(String.format("%1$s %2$s", die_klass, message));
+	}
 
-    public static void err(String die_klass, String message) {
-        System.err.println(String.format("%1$s %2$s", die_klass, message));
-    }
+	public static void err(String die_klass, String message) {
+		System.err.println(String.format("%1$s %2$s", die_klass, message));
+	}
 
 }

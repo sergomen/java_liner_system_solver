@@ -6,22 +6,22 @@ package Settings;
  */
 public enum StandardMatrix {
 
-    G(new double[][]{
-            {0},
-            {0},
-            {1}
-    }),
-    H(new double[][]{
-            {1, 0, 0},
-    });
+	G(new double[][]{
+		{0},
+		{0},
+		{1}
+	}),
+	H(new double[][]{
+		{1, 0, 0},
+	});
 
-    private double[][] matrix;
+	private double[][] matrix;
 
-    StandardMatrix(double[][] matrix) {
-        this.matrix = matrix;
-    }
+	StandardMatrix(double[][] matrix) {
+		this.matrix = matrix;
+	}
 
-    public double[][] getMatrix() {
-        return matrix;
-    }
+	public double[][] getMatrix() {
+		return matrix;
+	}
 }

@@ -174,8 +174,8 @@ public class PlotsController {
 			Main.log(PlotsController.class.getName(), "there is no states to filtrate");
 			return;
 		} else if (!graphs.getChildren().contains(velocity_plot) ||
-				!graphs.getChildren().contains(angle_plot) ||
-				!graphs.getChildren().contains(noise_plot)) {
+			!graphs.getChildren().contains(angle_plot) ||
+			!graphs.getChildren().contains(noise_plot)) {
 			Main.log(PlotsController.class.getName(), "there is no plots to draw");
 			return;
 		}
@@ -253,8 +253,8 @@ public class PlotsController {
 			Main.log(PlotsController.class.getName(), "there is no states to filtrate");
 			return;
 		} else if (!graphs.getChildren().contains(velocity_plot) ||
-				!graphs.getChildren().contains(angle_plot) ||
-				!graphs.getChildren().contains(noise_plot)) {
+			!graphs.getChildren().contains(angle_plot) ||
+			!graphs.getChildren().contains(noise_plot)) {
 			Main.log(PlotsController.class.getName(), "there is no plots to draw");
 			return;
 		}
@@ -333,9 +333,9 @@ public class PlotsController {
 		double[] reverse_noise = new double[StateKeep.getRowStates().size()];
 
 		ReverseKalmansFilter reverseKalmansFilter =
-				new ReverseKalmansFilter(Parameters.velocity_interval_noise.getValue(), Parameters.Q_reverse_optimal.getValue());
+			new ReverseKalmansFilter(Parameters.velocity_interval_noise.getValue(), Parameters.Q_reverse_optimal.getValue());
 		KalmansFilter kalmansFilter =
-				new KalmansFilter(Parameters.velocity_interval_noise.getValue(), Parameters.Q_direct_optimal.getValue());
+			new KalmansFilter(Parameters.velocity_interval_noise.getValue(), Parameters.Q_direct_optimal.getValue());
 
 		// fill direct and reverse noise arrays
 		for (int j = (StateKeep.getRowStates().size() - 1); j > 0; j--) {
@@ -384,8 +384,8 @@ public class PlotsController {
 			}
 
 			double difference = (direct_filtrate_interval_sum - reverse_filtrate_interval_sum > 0) ?
-					direct_filtrate_interval_sum - reverse_filtrate_interval_sum :
-					(direct_filtrate_interval_sum - reverse_filtrate_interval_sum) * -1.0;
+				direct_filtrate_interval_sum - reverse_filtrate_interval_sum :
+				(direct_filtrate_interval_sum - reverse_filtrate_interval_sum) * -1.0;
 
 			if (minimal_shift == null || minimal_shift > difference) {
 				minimal_shift = difference;
@@ -394,11 +394,11 @@ public class PlotsController {
 		}
 
 		Parameters.shift_between_direct_and_reverse_filtrate_plots.setValue(
-				direct_plot_interval_start - reverse_plot_interval_start
+			direct_plot_interval_start - reverse_plot_interval_start
 		);
 
 		Main.log(PlotsController.class.getName(),
-				"find shift value:" + (direct_plot_interval_start - reverse_plot_interval_start));
+			"find shift value:" + (direct_plot_interval_start - reverse_plot_interval_start));
 
 
 		/* Reverse and direct noise filters has shifts from original plot;
@@ -414,7 +414,7 @@ public class PlotsController {
 		int half_shift = shift / 2;
 
 		for (int time = half_shift; time < StateKeep.getRowStates().size() - half_shift; time++) {
-			double average_noise = reverse_noise[time-half_shift] + direct_noise[time+half_shift];
+			double average_noise = reverse_noise[time - half_shift] + direct_noise[time + half_shift];
 			average_noise /= 2;
 			unshifted_filtered_noise.getData().add(new XYChart.Data(time, average_noise));
 		}
@@ -461,7 +461,7 @@ public class PlotsController {
 		double y = axis.sceneToLocal(mouseSceneCoordinates).getY();
 
 		mainStage.setTitle(String.format("Time: %1$d Value: %2$,.8f",
-				timeAxis.getValueForDisplay(x).intValue(), axis.getValueForDisplay(y).doubleValue()));
+			timeAxis.getValueForDisplay(x).intValue(), axis.getValueForDisplay(y).doubleValue()));
 	}
 
 }
