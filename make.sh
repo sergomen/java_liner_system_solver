@@ -3,7 +3,7 @@
 pushd /home/georg/Dropbox/Programs/java_keep/die_fickene_zeit;
 
 # save states
-cp target/solver.jarstates ./
+cp target/solver.jarrowStates ./
 echo states saved;
 
 # try to install mvn libraries
@@ -29,7 +29,7 @@ mvn assembly:single
 >&2 echo assembly --complete;
 
 # restore states
-mv ./solver.jarstates target/solver.jarstates
+mv ./solver.jarrowStates target/solver.jarrowStates
 >&2 echo states restored;
 
 # run jar
