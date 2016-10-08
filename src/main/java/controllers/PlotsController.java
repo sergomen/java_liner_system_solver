@@ -7,6 +7,7 @@ import Settings.Parameters;
 import equation_solvers.BaseSolver;
 import equation_solvers.KalmansFilter;
 import equation_solvers.ReverseKalmansFilter;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.chart.LineChart;
@@ -18,6 +19,9 @@ import javafx.stage.Stage;
 import main.Main;
 import utils.StateKeep;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PlotsController {
 
 	private Stage mainStage;
@@ -27,24 +31,24 @@ public class PlotsController {
 	private final NumberAxis angleAxis = new NumberAxis();
 	private final NumberAxis noiseAxis = new NumberAxis();
 
-	private LineChart<Number, Number> velocity_plot;
-	private LineChart<Number, Number> angle_plot;
-	private LineChart<Number, Number> noise_plot;
+	private LineChart<Integer, Double> velocity_plot;
+	private LineChart<Integer, Double> angle_plot;
+	private LineChart<Integer, Double> noise_plot;
 
-	private XYChart.Series<Number, Number> velocity;
-	private XYChart.Series<Number, Number> angle;
-	private XYChart.Series<Number, Number> noise;
-	private XYChart.Series<Number, Number> noised_velocity;
+	private XYChart.Series<Integer, Double> velocity;
+	private XYChart.Series<Integer, Double> angle;
+	private XYChart.Series<Integer, Double> noise;
+	private XYChart.Series<Integer, Double> noised_velocity;
 
-	private XYChart.Series<Number, Number> filtered_velocity;
-	private XYChart.Series<Number, Number> filtered_angle;
-	private XYChart.Series<Number, Number> filtered_noise;
+	private XYChart.Series<Integer, Double> filtered_velocity;
+	private XYChart.Series<Integer, Double> filtered_angle;
+	private XYChart.Series<Integer, Double> filtered_noise;
 
-	private XYChart.Series<Number, Number> reverse_filtered_velocity;
-	private XYChart.Series<Number, Number> reverse_filtered_angle;
-	private XYChart.Series<Number, Number> reverse_filtered_noise;
+	private XYChart.Series<Integer, Double> reverse_filtered_velocity;
+	private XYChart.Series<Integer, Double> reverse_filtered_angle;
+	private XYChart.Series<Integer, Double> reverse_filtered_noise;
 
-	private XYChart.Series<Number, Number> unshifted_filtered_noise;
+	private XYChart.Series<Integer, Double> unshifted_filtered_noise;
 
 	private final int solveTime = (int) Parameters.solve_time.getValue(); // TODO:set with GUT
 	private final int timeDelta = (int) Parameters.time_delta.getValue();
@@ -89,9 +93,9 @@ public class PlotsController {
 		this.unshifted_filtered_noise = new XYChart.Series<>();
 		this.unshifted_filtered_noise.setName("unshifted noise");
 
-		this.velocity_plot = new LineChart<>(timeAxis, velocityAxis);
-		this.angle_plot = new LineChart<>(timeAxis, angleAxis);
-		this.noise_plot = new LineChart<>(timeAxis, noiseAxis);
+		this.velocity_plot = new LineChart(timeAxis, velocityAxis);
+		this.angle_plot = new LineChart(timeAxis, angleAxis);
+		this.noise_plot = new LineChart(timeAxis, noiseAxis);
 
 		// velocity noised append first for first plotting on grid
 		this.velocity_plot.getData().add(noised_velocity);
@@ -154,13 +158,24 @@ public class PlotsController {
 			}
 		}
 
+		List<XYChart.Data<Integer, Double>> velocity_list = new ArrayList<>();
+		List<XYChart.Data<Integer, Double>> noised_velocity_list = new ArrayList<>();
+		List<XYChart.Data<Integer, Double>> angle_list = new ArrayList<>();
+		List<XYChart.Data<Integer, Double>> noise_list = new ArrayList<>();
+
 		// Load states from StateKeep to plots
 		for (RowState rowState : StateKeep.getRowStates()) {
-			velocity.getData().add(new XYChart.Data(rowState.time, rowState.velocity));
-			noised_velocity.getData().add(new XYChart.Data(rowState.time, rowState.velocity + rowState.velocity_noise));
-			angle.getData().add(new XYChart.Data(rowState.time, rowState.angle));
-			noise.getData().add(new XYChart.Data(rowState.time, rowState.noise));
+			velocity_list.add(new XYChart.Data(rowState.time, rowState.velocity));
+			noised_velocity_list.add(new XYChart.Data(rowState.time, rowState.velocity + rowState.velocity_noise));
+			angle_list.add(new XYChart.Data(rowState.time, rowState.angle));
+			noise_list.add(new XYChart.Data(rowState.time, rowState.noise));
 		}
+
+		velocity.setData(FXCollections.observableArrayList(velocity_list));
+		noised_velocity.setData(FXCollections.observableArrayList(noised_velocity_list));
+		angle.setData(FXCollections.observableArrayList(angle_list));
+		noise.setData(FXCollections.observableArrayList(noise_list));
+
 	}
 
 	public void filtrate_reverse() {
@@ -217,24 +232,36 @@ public class PlotsController {
 				minimal_error = average_error;
 				Q_optimal = Q;
 
-				Main.err(PlotsController.class.getName(), "minimal result error:" + average_error + "\tQ:" + Q);
+				Main.err(PlotsController.class.getName(),
+					"minimal result error:" + average_error + "\tQ:" + Q);
 			} else {
-				Main.err(PlotsController.class.getName(), "not minimal result error:" + average_error + "\tQ:" + Q);
+				Main.err(PlotsController.class.getName(),
+					"not minimal result error:" + average_error + "\tQ:" + Q);
 			}
 		}
 
-		Main.err(PlotsController.class.getName(), "minimal error:" + minimal_error + "\toptimal Q:" + Q_optimal);
+		Main.err(PlotsController.class.getName(),
+			"minimal error:" + minimal_error + "\toptimal Q:" + Q_optimal);
 		ReverseKalmansFilter filterSolver = new ReverseKalmansFilter(R, Q_optimal);
+
+		List<XYChart.Data<Integer, Double>> reverse_filtered_velocity_list = new ArrayList<>();
+		List<XYChart.Data<Integer, Double>> reverse_filtered_angle_list = new ArrayList<>();
+		List<XYChart.Data<Integer, Double>> reverse_filtered_noise_list = new ArrayList<>();
 
 		//Load states from StateKeep to plots
 		for (int j = (StateKeep.getRowStates().size() - 1); j > 0; j--) {
 			RowState rowState = StateKeep.getRowStates().get(j);
 			State state = filterSolver.next(rowState);
 
-			reverse_filtered_velocity.getData().add(new XYChart.Data(rowState.time, state.velocity));
-			reverse_filtered_angle.getData().add(new XYChart.Data(rowState.time, state.angle));
-			reverse_filtered_noise.getData().add(new XYChart.Data(rowState.time, state.noise));
+			reverse_filtered_velocity_list.add(new XYChart.Data(rowState.time, state.velocity));
+			reverse_filtered_angle_list.add(new XYChart.Data(rowState.time, state.angle));
+			reverse_filtered_noise_list.add(new XYChart.Data(rowState.time, state.noise));
+
 		}
+
+		reverse_filtered_velocity.setData(FXCollections.observableArrayList(reverse_filtered_velocity_list));
+		reverse_filtered_angle.setData(FXCollections.observableArrayList(reverse_filtered_angle_list));
+		reverse_filtered_noise.setData(FXCollections.observableArrayList(reverse_filtered_noise_list));
 
 		/* Q_reverse_optimal need to find filtrate & reverse filtrate
 		* plots shift from original
@@ -293,22 +320,33 @@ public class PlotsController {
 				minimal_error = average_error;
 				Q_optimal = Q;
 
-				Main.err(PlotsController.class.getName(), "minimal result error:" + average_error + "\tQ:" + Q);
+				Main.err(PlotsController.class.getName(),
+					"minimal result error:" + average_error + "\tQ:" + Q);
 			} else {
-				Main.err(PlotsController.class.getName(), "not minimal result error:" + average_error + "\tQ:" + Q);
+				Main.err(PlotsController.class.getName(),
+					"not minimal result error:" + average_error + "\tQ:" + Q);
 			}
 		}
 
-		Main.err(PlotsController.class.getName(), "minimal error:" + minimal_error + "\toptimal Q:" + Q_optimal);
+		Main.err(PlotsController.class.getName(),
+			"minimal error:" + minimal_error + "\toptimal Q:" + Q_optimal);
 		KalmansFilter filterSolver = new KalmansFilter(R, Q_optimal);
+
+		List<XYChart.Data<Integer, Double>> filtered_velocity_list = new ArrayList<>();
+		List<XYChart.Data<Integer, Double>> filtered_angle_list = new ArrayList<>();
+		List<XYChart.Data<Integer, Double>> filtered_noise_list = new ArrayList<>();
 
 		// Load states from StateKeep to plots
 		for (RowState rowState : StateKeep.getRowStates()) {
 			State state = filterSolver.next(rowState);
-			filtered_velocity.getData().add(new XYChart.Data(rowState.time, state.velocity));
-			filtered_angle.getData().add(new XYChart.Data(rowState.time, state.angle));
-			filtered_noise.getData().add(new XYChart.Data(rowState.time, state.noise));
+			filtered_velocity_list.add(new XYChart.Data(rowState.time, state.velocity));
+			filtered_angle_list.add(new XYChart.Data(rowState.time, state.angle));
+			filtered_noise_list.add(new XYChart.Data(rowState.time, state.noise));
 		}
+
+		filtered_velocity.setData(FXCollections.observableArrayList(filtered_velocity_list));
+		filtered_angle.setData(FXCollections.observableArrayList(filtered_angle_list));
+		filtered_noise.setData(FXCollections.observableArrayList(filtered_noise_list));
 
 		/* Q_reverse_optimal need to find filtrate & reverse filtrate
 		* plots shift from original
@@ -333,9 +371,11 @@ public class PlotsController {
 		double[] reverse_noise = new double[StateKeep.getRowStates().size()];
 
 		ReverseKalmansFilter reverseKalmansFilter =
-			new ReverseKalmansFilter(Parameters.velocity_interval_noise.getValue(), Parameters.Q_reverse_optimal.getValue());
+			new ReverseKalmansFilter(Parameters.velocity_interval_noise.getValue(),
+				Parameters.Q_reverse_optimal.getValue());
 		KalmansFilter kalmansFilter =
-			new KalmansFilter(Parameters.velocity_interval_noise.getValue(), Parameters.Q_direct_optimal.getValue());
+			new KalmansFilter(Parameters.velocity_interval_noise.getValue(),
+				Parameters.Q_direct_optimal.getValue());
 
 		// fill direct and reverse noise arrays
 		for (int j = (StateKeep.getRowStates().size() - 1); j > 0; j--) {
@@ -413,12 +453,14 @@ public class PlotsController {
 		int shift = (int) Parameters.shift_between_direct_and_reverse_filtrate_plots.getValue();
 		int half_shift = shift / 2;
 
+		List<XYChart.Data<Integer, Double>> noise_shift_list = new ArrayList<>();
+
 		for (int time = half_shift; time < StateKeep.getRowStates().size() - half_shift; time++) {
 			double average_noise = reverse_noise[time - half_shift] + direct_noise[time + half_shift];
 			average_noise /= 2;
-			unshifted_filtered_noise.getData().add(new XYChart.Data(time, average_noise));
+			noise_shift_list.add(new XYChart.Data(time, average_noise));
 		}
-
+		unshifted_filtered_noise.setData(FXCollections.observableArrayList(noise_shift_list));
 	}
 
 	/**

@@ -14,15 +14,15 @@ mvn install;
 mvn clean:clean
 >&2 echo hash clean --complete;
 
-# test
-mvn surefire:test
->&2 echo tests --comlete;
-
 # compile and place resources
 mvn resources:resources
 >&2 echo resources --complete;
 mvn compiler:compile
 >&2 echo bytecode --complete;
+
+# test
+mvn test
+>&2 echo tests --comlete;
 
 # assembly in solver.jar
 mvn assembly:single
