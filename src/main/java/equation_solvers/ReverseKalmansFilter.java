@@ -38,11 +38,11 @@ public class ReverseKalmansFilter {
 	private double Q;
 
 	// velocity noise
-	private double R;
+	private double R = 0.0;
+	private double C = 1.0;
 
 	// set R and Q
-	public ReverseKalmansFilter(double R, double Q) {
-		this.R = R;
+	public ReverseKalmansFilter(double Q) {
 		this.Q = Q;
 	}
 
@@ -97,14 +97,19 @@ public class ReverseKalmansFilter {
 
 		// H * P * H_T, output is scalar, that's important
 		double[][] first_addendum_of_second_multiplier = Matrix.matrix_multiplication(
-			Matrix.matrix_transpose(StandardMatrix.H.getMatrix()),
+			StandardMatrix.H.getMatrix(),
 			first_multiplier
 		);
-		double second_multipliers_first_addendum = 0;
-		// check first_addendum_of_second_multiplier dimensions, it must be [1][1]
-		if (first_addendum_of_second_multiplier.length == 1 && first_addendum_of_second_multiplier[0].length == 1) {
-			second_multipliers_first_addendum = first_addendum_of_second_multiplier[0][0];
-		}
+
+		double time = 5400 - rawState.time + 1;
+		// ( (k-1) / k ) * C + ( 1 / k ) * (H * P * H_T + R)
+		double first_c_component = ((time) / (double) (time + 1)) * C;
+		double second_c_component = (1.0 / time ) * (first_addendum_of_second_multiplier[0][0] + R);
+
+		C = first_c_component + second_c_component;
+		R = C - first_addendum_of_second_multiplier[0][0];
+
+		double second_multipliers_first_addendum = first_addendum_of_second_multiplier[0][0];
 
 		double second_multiplier = second_multipliers_first_addendum +
 			// R as noised velocity

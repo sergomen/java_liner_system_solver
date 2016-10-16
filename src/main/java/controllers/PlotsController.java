@@ -101,7 +101,7 @@ public class PlotsController {
 		this.velocity_plot.getData().add(noised_velocity);
 		this.velocity_plot.getData().add(filtered_velocity);
 		this.velocity_plot.getData().add(reverse_filtered_velocity);
-		this.velocity_plot.getData().add(velocity);
+//		this.velocity_plot.getData().add(velocity);
 
 		this.angle_plot.getData().add(angle);
 		this.angle_plot.getData().add(filtered_angle);
@@ -215,7 +215,7 @@ public class PlotsController {
 			int summary_numbers = StateKeep.getRowStates().size();
 
 			double Q = Math.pow(10, -1 * (minimal_degree + i * degree_step));
-			ReverseKalmansFilter filterSolver = new ReverseKalmansFilter(R, Q);
+			ReverseKalmansFilter filterSolver = new ReverseKalmansFilter(Q);
 
 			for (int j = (summary_numbers - 1); j > 0; j--) {
 				RowState rowState = StateKeep.getRowStates().get(j);
@@ -242,7 +242,7 @@ public class PlotsController {
 
 		Main.err(PlotsController.class.getName(),
 			"minimal error:" + minimal_error + "\toptimal Q:" + Q_optimal);
-		ReverseKalmansFilter filterSolver = new ReverseKalmansFilter(R, Q_optimal);
+		ReverseKalmansFilter filterSolver = new ReverseKalmansFilter(Q_optimal);
 
 		List<XYChart.Data<Integer, Double>> reverse_filtered_velocity_list = new ArrayList<>();
 		List<XYChart.Data<Integer, Double>> reverse_filtered_angle_list = new ArrayList<>();
@@ -269,7 +269,16 @@ public class PlotsController {
 		Parameters.Q_reverse_optimal.setValue(Q_optimal);
 	}
 
+	private void brokeDate () {
+		for (RowState state : StateKeep.getRowStates()) {
+			if (state.time == 1800) {
+				state.velocity = Math.pow(10, 2);
+			}
+		}
+	}
+
 	public void filtrate() {
+		brokeDate();
 		Main.log(PlotsController.class.getName(), "run Kalman's filter");
 
 		filtered_velocity.getData().clear();
@@ -304,7 +313,7 @@ public class PlotsController {
 			int summary_numbers = 0;
 
 			double Q = Math.pow(10, -1 * (minimal_degree + i * degree_step));
-			KalmansFilter filterSolver = new KalmansFilter(R, Q);
+			KalmansFilter filterSolver = new KalmansFilter(Q);
 
 			for (RowState rowState : StateKeep.getRowStates()) {
 				State state = filterSolver.next(rowState);
@@ -330,7 +339,7 @@ public class PlotsController {
 
 		Main.err(PlotsController.class.getName(),
 			"minimal error:" + minimal_error + "\toptimal Q:" + Q_optimal);
-		KalmansFilter filterSolver = new KalmansFilter(R, Q_optimal);
+		KalmansFilter filterSolver = new KalmansFilter(Q_optimal);
 
 		List<XYChart.Data<Integer, Double>> filtered_velocity_list = new ArrayList<>();
 		List<XYChart.Data<Integer, Double>> filtered_angle_list = new ArrayList<>();
@@ -371,10 +380,10 @@ public class PlotsController {
 		double[] reverse_noise = new double[StateKeep.getRowStates().size()];
 
 		ReverseKalmansFilter reverseKalmansFilter =
-			new ReverseKalmansFilter(Parameters.velocity_interval_noise.getValue(),
+			new ReverseKalmansFilter(
 				Parameters.Q_reverse_optimal.getValue());
 		KalmansFilter kalmansFilter =
-			new KalmansFilter(Parameters.velocity_interval_noise.getValue(),
+			new KalmansFilter(
 				Parameters.Q_direct_optimal.getValue());
 
 		// fill direct and reverse noise arrays
